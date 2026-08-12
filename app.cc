@@ -1,6 +1,7 @@
 #include "app.h"
 #include <csui/modal.h>
 #include <csync/csync.h>
+#include <QStyle>
 
 const QString help_access_token =
     "<span style=\"color: #555555\">"
@@ -33,6 +34,20 @@ void App::setup_ui()
   ui->tree_view->setModel(newTreeModel());
   ui->fetch_button->set_states("Fetch", "Fetching...");
   ui->pull_button->set_states("Pull", "Pulling...");
+
+  ui->theme_selector->addItems({"System theme", "Light theme", "Dark theme"});
+  const QString saved_theme = settings.get("theme");
+  const int theme_index = saved_theme == "dark" ? 2 : saved_theme == "light" ? 1 : 0;
+  ui->theme_selector->setCurrentIndex(theme_index);
+  connect(ui->theme_selector, &QComboBox::currentTextChanged, this,
+          [this](const QString &text) {
+            const QString theme = text.startsWith("Dark") ? "dark" :
+                                  text.startsWith("Light") ? "light" : "system";
+            settings.set("theme", theme);
+            settings.sync();
+            apply_theme(theme);
+          });
+  apply_theme(saved_theme.isEmpty() ? "system" : saved_theme);
 
   // Show the stored token so an expired token can be replaced directly.
   ui->access_token_input->setText(settings.get("access-token"));
@@ -348,6 +363,55 @@ void App::check_auth(const QString &token)
     return;
   }
   canvas->authenticate();
+}
+
+void App::apply_theme(const QString &theme)
+{
+  QPalette palette;
+  bool dark = theme == "dark";
+  if (theme == "system") {
+    // Qt 6.2 does not expose QStyleHints::colorScheme(). Infer the system
+    // preference from the standard window color instead.
+    dark = QApplication::style()->standardPalette().color(QPalette::Window)
+               .lightness() < 128;
+  }
+  if (dark) {
+    palette.setColor(QPalette::Window, QColor("#202020"));
+    palette.setColor(QPalette::WindowText, Qt::white);
+    palette.setColor(QPalette::Base, QColor("#2b2b2b"));
+    palette.setColor(QPalette::AlternateBase, QColor("#353535"));
+    palette.setColor(QPalette::Text, Qt::white);
+    palette.setColor(QPalette::Button, QColor("#353535"));
+    palette.setColor(QPalette::ButtonText, Qt::white);
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#a8a8a8"));
+    palette.setColor(QPalette::Highlight, QColor("#3d6f9e"));
+    palette.setColor(QPalette::HighlightedText, Qt::white);
+    palette.setColor(QPalette::PlaceholderText, QColor("#b0b0b0"));
+  } else {
+    palette = QApplication::style()->standardPalette();
+    palette.setColor(QPalette::Window, QColor("#f5f5f5"));
+    palette.setColor(QPalette::Base, Qt::white);
+    palette.setColor(QPalette::Button, QColor("#e8e8e8"));
+    palette.setColor(QPalette::Text, QColor("#202020"));
+    palette.setColor(QPalette::WindowText, QColor("#202020"));
+    palette.setColor(QPalette::ButtonText, QColor("#202020"));
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#707070"));
+    palette.setColor(QPalette::Disabled, QPalette::Text, QColor("#707070"));
+    palette.setColor(QPalette::HighlightedText, QColor("#202020"));
+  }
+  QApplication::setPalette(palette);
+
+  const QString foreground = dark ? "#ffffff" : "#202020";
+  const QString disabled = dark ? "#a8a8a8" : "#707070";
+  const QString background = dark ? "#353535" : "#e8e8e8";
+  const QString control_style =
+      "QPushButton, QComboBox { color: " + foreground +
+      "; background-color: " + background +
+      "; } QPushButton:disabled { color: " + disabled + "; }";
+  ui->change_token_button->setStyleSheet(control_style);
+  ui->fetch_button->setStyleSheet(control_style);
+  ui->pull_button->setStyleSheet(control_style);
+  ui->theme_selector->setStyleSheet(control_style);
 }
 
 void App::gather_tracked()
