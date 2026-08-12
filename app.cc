@@ -384,6 +384,18 @@ void App::apply_theme(const QString &theme)
     palette.setColor(QPalette::HighlightedText, QColor("#202020"));
   }
   QApplication::setPalette(palette);
+
+  const QString foreground = dark ? "#ffffff" : "#202020";
+  const QString disabled = dark ? "#a8a8a8" : "#707070";
+  const QString background = dark ? "#353535" : "#e8e8e8";
+  const QString control_style =
+      "QPushButton, QComboBox { color: " + foreground +
+      "; background-color: " + background +
+      "; } QPushButton:disabled { color: " + disabled + "; }";
+  ui->change_token_button->setStyleSheet(control_style);
+  ui->fetch_button->setStyleSheet(control_style);
+  ui->pull_button->setStyleSheet(control_style);
+  ui->theme_selector->setStyleSheet(control_style);
 }
 
 void App::gather_tracked()
