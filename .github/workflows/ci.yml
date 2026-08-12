@@ -41,7 +41,6 @@ jobs:
           host: mac
           target: desktop
           version: ${{ matrix.version }}
-          setup-python: false
           archives: qtbase qttools
 
       # build canvas-sync
