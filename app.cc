@@ -33,6 +33,9 @@ void App::setup_ui()
   ui->tree_view->setModel(newTreeModel());
   ui->fetch_button->set_states("Fetch", "Fetching...");
   ui->pull_button->set_states("Pull", "Pulling...");
+
+  // Show the stored token so an expired token can be replaced directly.
+  ui->access_token_input->setText(settings.get("access-token"));
 }
 
 void App::connect_ui()
@@ -60,6 +63,9 @@ void App::connect_tree()
 void App::connect_canvas()
 {
   connect(canvas, &ICanvas::authenticate_done, this, [=](bool authenticated) {
+    // Authentication is triggered on every token edit. Ignore replies for
+    // tokens that are no longer current.
+    if (canvas->token() != ui->access_token_input->text().trimmed()) return;
     this->set_auth_state(authenticated);
     if (authenticated) canvas->fetch_courses();
   });
@@ -329,10 +335,18 @@ void App::show_updates()
 
 void App::check_auth(const QString &token)
 {
-  canvas->set_token(token);
+  const QString normalized_token = token.trimmed();
+  canvas->set_token(normalized_token);
   ui->tree_view->setModel(newTreeModel());
   course_trees.clear();
   folder_names.clear();
+
+  // Do not send an unauthenticated request while the field is empty (which
+  // happens briefly when replacing an existing token).
+  if (normalized_token.isEmpty()) {
+    set_auth_state(false);
+    return;
+  }
   canvas->authenticate();
 }
 

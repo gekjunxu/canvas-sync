@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QDir>
 
 class Settings : private QSettings
 {
@@ -11,7 +12,12 @@ class Settings : private QSettings
 
 public:
   Settings(const QString &settings_file = "canvas-sync-settings.ini")
-      : QSettings(dir + '/' + settings_file, QSettings::IniFormat){};
+      : QSettings(dir + '/' + settings_file, QSettings::IniFormat)
+  {
+    // QSettings does not reliably create the parent directory for a custom
+    // INI path.  Ensure a fresh installation can persist its first setting.
+    QDir().mkpath(dir);
+  };
 
   enum Type { TRACKED, LOCAL_DIR };
   static const QString dir; // defined elsewhere
