@@ -1,5 +1,8 @@
 #include "tree_model.h"
 
+#include <QApplication>
+#include <QPalette>
+
 QVector<QVariant> stringListToVariantList(const QStringList &data)
 {
   QVector<QVariant> variantData;
