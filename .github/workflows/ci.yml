@@ -95,8 +95,8 @@ jobs:
           arch: x64
 
       - name: Install build dependencies
-        shell: bash
-        run: cinst -y ninja
+        shell: powershell
+        run: choco install ninja -y --no-progress
 
       - uses: actions/checkout@v3
 
