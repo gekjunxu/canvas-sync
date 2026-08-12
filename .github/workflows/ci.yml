@@ -16,6 +16,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # Standard format of uploaded asset:
 # CanvasSync-${{ github.ref_name }}-${{ matrix.os }}.{app,exe,deb}
 
