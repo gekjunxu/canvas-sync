@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          echo "ASSET=Canvas-Sync-${{ github.ref_name }}-${{ matrix.os }}.dmg" >>$GITHUB_ENV
+          echo "ASSET=Canvas-Sync-${{ github.event.pull_request.number || github.ref_name }}-${{ matrix.os }}.dmg" >>$GITHUB_ENV
           echo "QT_STATIC_DIR=$PWD/${{ env.QT_STATIC_DIR }}" >>$GITHUB_ENV
 
       - uses: actions/checkout@v5
@@ -78,7 +78,7 @@ jobs:
       - name: Set environment variables
         shell: bash
         run: |
-          echo "ASSET=Canvas-Sync-Installer-${{ github.ref_name }}.exe" >>$GITHUB_ENV
+          echo "ASSET=Canvas-Sync-Installer-${{ github.event.pull_request.number || github.ref_name }}.exe" >>$GITHUB_ENV
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
