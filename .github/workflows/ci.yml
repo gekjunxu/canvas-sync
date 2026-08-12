@@ -16,9 +16,6 @@ on:
 permissions:
   contents: write
 
-env:
-  QT_STATIC_DIR: Qt/static
-
 # Standard format of uploaded asset:
 # CanvasSync-${{ github.ref_name }}-${{ matrix.os }}.{app,exe,deb}
 
@@ -27,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [6.2.4]
+        version: ["6.8.*"]
         os: [macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
@@ -38,14 +35,24 @@ jobs:
 
       - uses: actions/checkout@v5
 
-      - name: download pre-build static Qt libraries
-        run: |
-          curl -fLo qt.tar.gz https://github.com/nguyenvukhang/qt-static/releases/download/v0.0.18/qt-${{ matrix.version }}-macos-12.tar.gz
-          mkdir -p ${{ env.QT_STATIC_DIR }}
-          tar -xvzf qt.tar.gz && mv qt_output/* ${{ env.QT_STATIC_DIR }}
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          host: mac
+          target: desktop
+          version: ${{ matrix.version }}
+          setup-python: false
+          archives: qtbase qttools
 
       # build canvas-sync
-      - run: make build
+      - name: Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -S . -B build \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+          cmake --build build --parallel
+
+      - name: Deploy Qt libraries
+        run: $QT_ROOT_DIR/bin/macdeployqt "build/Canvas Sync.app"
 
       # package app
       - run: |
