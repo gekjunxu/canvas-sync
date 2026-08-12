@@ -118,7 +118,11 @@ jobs:
         shell: powershell
         run: |
           Set-Location deploy/windows
-          binarycreator.exe -c config/config.xml -p packages $env:ASSET
+          $binarycreator = Join-Path $env:IQTA_TOOLS 'QtInstallerFramework/4.5/bin/binarycreator.exe'
+          & $binarycreator --offline-only -c config/config.xml -p packages $env:ASSET
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
           Move-Item $env:ASSET ../..
 
       # upload release package
