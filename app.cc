@@ -329,7 +329,7 @@ void App::show_updates()
 
 void App::check_auth(const QString &token)
 {
-  canvas->set_token(token);
+  canvas->set_token(token.trimmed());
   ui->tree_view->setModel(newTreeModel());
   course_trees.clear();
   folder_names.clear();
