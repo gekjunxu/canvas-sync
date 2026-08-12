@@ -367,6 +367,7 @@ void App::apply_theme(const QString &theme)
     palette.setColor(QPalette::Text, Qt::white);
     palette.setColor(QPalette::Button, QColor("#353535"));
     palette.setColor(QPalette::ButtonText, Qt::white);
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#a8a8a8"));
     palette.setColor(QPalette::Highlight, QColor("#3d6f9e"));
     palette.setColor(QPalette::HighlightedText, Qt::white);
     palette.setColor(QPalette::PlaceholderText, QColor("#b0b0b0"));
@@ -378,6 +379,8 @@ void App::apply_theme(const QString &theme)
     palette.setColor(QPalette::Text, QColor("#202020"));
     palette.setColor(QPalette::WindowText, QColor("#202020"));
     palette.setColor(QPalette::ButtonText, QColor("#202020"));
+    palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#707070"));
+    palette.setColor(QPalette::Disabled, QPalette::Text, QColor("#707070"));
     palette.setColor(QPalette::HighlightedText, QColor("#202020"));
   }
   QApplication::setPalette(palette);
