@@ -366,13 +366,12 @@ void App::check_auth(const QString &token)
 
 void App::apply_theme(const QString &theme)
 {
-  if (theme == "system") {
-    QApplication::setPalette(QApplication::style()->standardPalette());
-    return;
-  }
-
   QPalette palette;
-  if (theme == "dark") {
+  bool dark = theme == "dark";
+  if (theme == "system") {
+    dark = QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+  }
+  if (dark) {
     palette.setColor(QPalette::Window, QColor("#202020"));
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Base, QColor("#2b2b2b"));
@@ -385,8 +384,13 @@ void App::apply_theme(const QString &theme)
     palette.setColor(QPalette::PlaceholderText, QColor("#b0b0b0"));
   } else {
     palette = QApplication::style()->standardPalette();
+    palette.setColor(QPalette::Window, QColor("#f5f5f5"));
+    palette.setColor(QPalette::Base, Qt::white);
+    palette.setColor(QPalette::Button, QColor("#e8e8e8"));
     palette.setColor(QPalette::Text, QColor("#202020"));
     palette.setColor(QPalette::WindowText, QColor("#202020"));
+    palette.setColor(QPalette::ButtonText, QColor("#202020"));
+    palette.setColor(QPalette::HighlightedText, QColor("#202020"));
   }
   QApplication::setPalette(palette);
 }
