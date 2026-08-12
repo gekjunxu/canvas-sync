@@ -77,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [6.2.4]
+        version: ["6.8.*"]
         os: [windows-2022]
     runs-on: ${{ matrix.os }}
     steps:
@@ -89,7 +89,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64
           version: ${{ matrix.version }}
           setup-python: false
           tools: tools_ifw
