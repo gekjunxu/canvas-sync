@@ -93,7 +93,6 @@ public:
   void check_auth(const QString &token);
   void gather_tracked();
   void ready_all();
-  void apply_theme(const QString &theme);
   TreeModel *newTreeModel();
 
 public:
