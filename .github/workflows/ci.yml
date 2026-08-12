@@ -16,9 +16,6 @@ on:
 permissions:
   contents: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 # Standard format of uploaded asset:
 # CanvasSync-${{ github.ref_name }}-${{ matrix.os }}.{app,exe,deb}
 
@@ -99,7 +96,7 @@ jobs:
           archives: qtbase qttools
 
       - name: Install MSVC 2022
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
 
