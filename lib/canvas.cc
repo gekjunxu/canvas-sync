@@ -89,6 +89,8 @@ void Canvas::authenticate()
   std::cout << "First out to canvas servers!" << std::endl;
   QNetworkReply *r = this->get("/api/v1/users/self/profile");
   connect(r, &QNetworkReply::finished, this, [=]() {
+    const int status = r->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "Canvas auth response:" << status << r->errorString();
     terminate(r);
     bool ok = false;
 
