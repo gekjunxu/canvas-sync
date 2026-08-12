@@ -81,7 +81,7 @@ jobs:
           echo "ASSET=Canvas-Sync-Installer-${{ github.ref_name }}.exe" >>$GITHUB_ENV
 
       - name: Install Qt
-          uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@v4
         with:
           arch: win64_msvc2019_64
           version: ${{ matrix.version }}
