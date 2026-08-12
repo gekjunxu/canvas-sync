@@ -1,6 +1,7 @@
 #include "app.h"
 #include <csui/modal.h>
 #include <csync/csync.h>
+#include <QStyle>
 
 const QString help_access_token =
     "<span style=\"color: #555555\">"
