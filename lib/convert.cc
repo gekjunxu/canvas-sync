@@ -68,7 +68,18 @@ std::vector<Course> to_courses(const QJsonDocument &d)
 {
   Course (*f)(const QJsonObject &j) = to_course;
   std::vector<std::string> keys = {"id", "name"};
-  return to_vecq(d, (std::function<Course(const QJsonObject &)>)f, keys);
+  std::vector<Course> courses =
+      to_vecq(d, (std::function<Course(const QJsonObject &)>)f, keys);
+
+  // Canvas can return the same course more than once when a user has
+  // multiple enrollments. Keep one tree entry per course.
+  std::set<int> seen;
+  courses.erase(std::remove_if(courses.begin(), courses.end(),
+                               [&](const Course &course) {
+                                 return !seen.insert(course.id).second;
+                               }),
+                courses.end());
+  return courses;
 }
 
 std::vector<Folder> to_folders(const QJsonDocument &d)
