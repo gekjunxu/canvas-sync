@@ -36,7 +36,7 @@ jobs:
           echo "ASSET=Canvas-Sync-${{ github.ref_name }}-${{ matrix.os }}.dmg" >>$GITHUB_ENV
           echo "QT_STATIC_DIR=$PWD/${{ env.QT_STATIC_DIR }}" >>$GITHUB_ENV
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: download pre-build static Qt libraries
         run: |
@@ -98,7 +98,7 @@ jobs:
         shell: powershell
         run: choco install ninja -y --no-progress
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Build
         run: |
@@ -118,7 +118,8 @@ jobs:
         shell: powershell
         run: |
           Set-Location deploy/windows
-          $binarycreator = Join-Path $env:IQTA_TOOLS 'QtInstallerFramework/4.5/bin/binarycreator.exe'
+          $binarycreator = (Get-Command binarycreator.exe -ErrorAction Stop).Source
+          Write-Host "Using Qt Installer Framework: $binarycreator"
           & $binarycreator --offline-only -c config/config.xml -p packages $env:ASSET
           if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
