@@ -42,7 +42,10 @@ void write_file(const std::filesystem::path &path, const QByteArray &data)
     QFile::remove(file);
   }
   QSaveFile f(file);
-  f.open(QIODevice::WriteOnly);
+  if (!f.open(QIODevice::WriteOnly)) {
+    qWarning() << "Could not open file for writing:" << file;
+    return;
+  }
   f.write(data);
   f.commit();
   f.deleteLater();

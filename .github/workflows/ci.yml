@@ -9,11 +9,12 @@ on:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+**"
 
+  pull_request:
+    branches:
+      - main
+
 permissions:
   contents: write
-
-env:
-  QT_STATIC_DIR: Qt/static
 
 # Standard format of uploaded asset:
 # CanvasSync-${{ github.ref_name }}-${{ matrix.os }}.{app,exe,deb}
@@ -23,29 +24,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [6.2.4]
-        os: [macos-11, macos-12]
+        version: ["6.8.*"]
+        os: [macos-15-intel, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Set environment variables
         run: |
-          echo "ASSET=Canvas-Sync-${{ github.ref_name }}-${{ matrix.os }}.dmg" >>$GITHUB_ENV
+          echo "ASSET=Canvas-Sync-${{ github.event.pull_request.number || github.ref_name }}-${{ matrix.os }}.dmg" >>$GITHUB_ENV
           echo "QT_STATIC_DIR=$PWD/${{ env.QT_STATIC_DIR }}" >>$GITHUB_ENV
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: download pre-build static Qt libraries
-        run: |
-          curl -fLo qt.tar.gz https://github.com/nguyenvukhang/qt-static/releases/download/v0.0.18/qt-${{ matrix.version }}-${{ matrix.os }}.tar.gz
-          mkdir -p ${{ env.QT_STATIC_DIR }}
-          tar -xvzf qt.tar.gz && mv qt_output/* ${{ env.QT_STATIC_DIR }}
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          host: mac
+          target: desktop
+          version: ${{ matrix.version }}
+          archives: qtbase qttools
 
       # build canvas-sync
-      - run: make build
+      - name: Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -S . -B build \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+          cmake --build build --parallel
+
+      - name: Deploy Qt libraries
+        run: $QT_ROOT_DIR/bin/macdeployqt "build/Canvas Sync.app"
 
       # package app
       - run: |
-          mkdir dmg
+          mkdir -p dmg
           cp -a 'build/Canvas Sync.app' 'dmg/Canvas Sync.app'
           mv ./deploy/mac-readme.txt dmg/README.txt
           ln -s /Applications dmg/Applications
@@ -67,61 +77,67 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [6.2.4]
-        os: [windows-2019, windows-2022]
+        version: ["6.8.*"]
+        os: [windows-2022]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Set environment variables
         shell: bash
         run: |
-          echo "ASSET=Canvas-Sync-Installer-${{ github.ref_name }}.exe" >>$GITHUB_ENV
+          echo "ASSET=Canvas-Sync-Installer-${{ github.event.pull_request.number || github.ref_name }}.exe" >>$GITHUB_ENV
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64
           version: ${{ matrix.version }}
           setup-python: false
           tools: tools_ifw
           archives: qtbase qttools
 
       - name: Install MSVC 2022
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
 
       - name: Install build dependencies
-        shell: bash
-        run: cinst -y ninja
+        shell: powershell
+        run: choco install ninja -y --no-progress
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Build
         run: |
           cmake -DCMAKE_BUILD_TYPE=Release -S . -B build -G Ninja `
-            -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }}
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR"
           cmake --build build --parallel
 
       - name: Use windeployqt to load libraries
-        shell: bash
+        shell: powershell
         run: |
-          TARGET=deploy/windows/packages/com.nguyenvukhang.canvassync/data
-          mv 'build/Canvas Sync.exe' $TARGET
-          cd $TARGET
-          $Qt6_DIR/bin/windeployqt.exe 'Canvas Sync.exe'
+          $target = "deploy/windows/packages/com.nguyenvukhang.canvassync/data"
+          Move-Item "build/Canvas Sync.exe" $target
+          Set-Location $target
+          & "$env:QT_ROOT_DIR/bin/windeployqt.exe" "Canvas Sync.exe"
 
       - name: Package the installer
-        shell: bash
+        shell: powershell
         run: |
-          cd deploy/windows
-          $IQTA_TOOLS/QtInstallerFramework/4.5/bin/binarycreator.exe \
-            -c config/config.xml -p packages ${{ env.ASSET }}
-          mv ${{ env.ASSET }} ../..
+          Set-Location deploy/windows
+          $binarycreator = (Get-Command binarycreator.exe -ErrorAction Stop).Source
+          $installerbase = Join-Path (Split-Path $binarycreator) 'installerbase.exe'
+          Write-Host "Using Qt Installer Framework: $binarycreator"
+          Write-Host "Using installer template: $installerbase"
+          & $binarycreator --offline-only -t $installerbase -c config/config.xml -p packages -v $env:ASSET
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          Move-Item $env:ASSET ../..
 
       # upload release package
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-2019'
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-2022'
         with:
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
           files: ${{ env.ASSET }}
