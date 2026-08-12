@@ -1,7 +1,6 @@
 #include "app.h"
 #include <csui/modal.h>
 #include <csync/csync.h>
-#include <QStyleHints>
 
 const QString help_access_token =
     "<span style=\"color: #555555\">"
@@ -370,7 +369,10 @@ void App::apply_theme(const QString &theme)
   QPalette palette;
   bool dark = theme == "dark";
   if (theme == "system") {
-    dark = QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+    // Qt 6.2 does not expose QStyleHints::colorScheme(). Infer the system
+    // preference from the standard window color instead.
+    dark = QApplication::style()->standardPalette().color(QPalette::Window)
+               .lightness() < 128;
   }
   if (dark) {
     palette.setColor(QPalette::Window, QColor("#202020"));
