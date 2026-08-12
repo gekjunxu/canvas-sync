@@ -103,24 +103,23 @@ jobs:
       - name: Build
         run: |
           cmake -DCMAKE_BUILD_TYPE=Release -S . -B build -G Ninja `
-            -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }}
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR"
           cmake --build build --parallel
 
       - name: Use windeployqt to load libraries
-        shell: bash
+        shell: powershell
         run: |
-          TARGET=deploy/windows/packages/com.nguyenvukhang.canvassync/data
-          mv 'build/Canvas Sync.exe' $TARGET
-          cd $TARGET
-          $Qt6_DIR/bin/windeployqt.exe 'Canvas Sync.exe'
+          $target = "deploy/windows/packages/com.nguyenvukhang.canvassync/data"
+          Move-Item "build/Canvas Sync.exe" $target
+          Set-Location $target
+          & "$env:QT_ROOT_DIR/bin/windeployqt.exe" "Canvas Sync.exe"
 
       - name: Package the installer
-        shell: bash
+        shell: powershell
         run: |
-          cd deploy/windows
-          $IQTA_TOOLS/QtInstallerFramework/4.5/bin/binarycreator.exe \
-            -c config/config.xml -p packages ${{ env.ASSET }}
-          mv ${{ env.ASSET }} ../..
+          Set-Location deploy/windows
+          binarycreator.exe -c config/config.xml -p packages $env:ASSET
+          Move-Item $env:ASSET ../..
 
       # upload release package
       - name: Release
