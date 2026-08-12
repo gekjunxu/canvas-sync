@@ -33,6 +33,21 @@ void App::setup_ui()
   ui->tree_view->setModel(newTreeModel());
   ui->fetch_button->set_states("Fetch", "Fetching...");
   ui->pull_button->set_states("Pull", "Pulling...");
+
+  ui->theme_selector->addItems({"System theme", "Light theme", "Dark theme"});
+  const QString saved_theme = settings.get("theme");
+  const int theme_index = saved_theme == "dark" ? 2 : saved_theme == "light" ? 1 : 0;
+  ui->theme_selector->setCurrentIndex(theme_index);
+  connect(ui->theme_selector, &QComboBox::currentTextChanged, this,
+          [this](const QString &text) {
+            const QString theme = text.startsWith("Dark") ? "dark" :
+                                  text.startsWith("Light") ? "light" : "system";
+            settings.set("theme", theme);
+            settings.sync();
+            apply_theme(theme);
+          });
+  apply_theme(saved_theme.isEmpty() ? "system" : saved_theme);
+
 }
 
 void App::connect_ui()
@@ -334,6 +349,33 @@ void App::check_auth(const QString &token)
   course_trees.clear();
   folder_names.clear();
   canvas->authenticate();
+}
+
+void App::apply_theme(const QString &theme)
+{
+  if (theme == "system") {
+    QApplication::setPalette(QApplication::style()->standardPalette());
+    return;
+  }
+
+  QPalette palette;
+  if (theme == "dark") {
+    palette.setColor(QPalette::Window, QColor("#202020"));
+    palette.setColor(QPalette::WindowText, Qt::white);
+    palette.setColor(QPalette::Base, QColor("#2b2b2b"));
+    palette.setColor(QPalette::AlternateBase, QColor("#353535"));
+    palette.setColor(QPalette::Text, Qt::white);
+    palette.setColor(QPalette::Button, QColor("#353535"));
+    palette.setColor(QPalette::ButtonText, Qt::white);
+    palette.setColor(QPalette::Highlight, QColor("#3d6f9e"));
+    palette.setColor(QPalette::HighlightedText, Qt::white);
+    palette.setColor(QPalette::PlaceholderText, QColor("#b0b0b0"));
+  } else {
+    palette = QApplication::style()->standardPalette();
+    palette.setColor(QPalette::Text, QColor("#202020"));
+    palette.setColor(QPalette::WindowText, QColor("#202020"));
+  }
+  QApplication::setPalette(palette);
 }
 
 void App::gather_tracked()
