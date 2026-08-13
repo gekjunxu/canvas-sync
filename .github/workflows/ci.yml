@@ -207,7 +207,7 @@ jobs:
           $installerbase = Join-Path (Split-Path $binarycreator) 'installerbase.exe'
           Write-Host "Using Qt Installer Framework: $binarycreator"
           Write-Host "Using installer template: $installerbase"
-          & $binarycreator --hybrid -t $installerbase -c config/config.xml -p packages -v $env:ASSET
+          & $binarycreator --offline-only -t $installerbase -c config/config.xml -p packages $env:ASSET
           if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
           }
