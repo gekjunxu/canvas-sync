@@ -2,8 +2,8 @@
 <Package>
   <DisplayName>Canvas Sync</DisplayName>
   <Description>Syncs local folders with folders on canvas.</Description>
-  <Version>0.2.3</Version>
-  <ReleaseDate>2026-08-13</ReleaseDate>
+  <Version>0.0.0</Version>
+  <ReleaseDate>1970-01-01</ReleaseDate>
   <Default>true</Default>
   <Script>installscript.qs</Script>
 </Package>

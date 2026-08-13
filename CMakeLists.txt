@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cs2 VERSION 0.1 LANGUAGES CXX)
+set(CS2_VERSION "0.0.0" CACHE STRING "Canvas Sync application version")
+project(cs2 VERSION ${CS2_VERSION} LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
