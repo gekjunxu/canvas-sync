@@ -411,11 +411,11 @@ void App::apply_theme(const QString &theme)
   const QString control_style =
       "QPushButton, QComboBox { color: " + foreground +
       "; background-color: " + background +
-      "; } QPushButton:disabled { color: " + disabled + "; }";
-  ui->change_token_button->setStyleSheet(control_style);
-  ui->fetch_button->setStyleSheet(control_style);
-  ui->pull_button->setStyleSheet(control_style);
-  ui->theme_selector->setStyleSheet(control_style);
+      "; } QPushButton:disabled { color: " + disabled +
+      "; } QMessageBox QPushButton { color: " + foreground +
+      "; background-color: " + background +
+      "; } QMessageBox QPushButton:disabled { color: " + disabled + "; }";
+  qApp->setStyleSheet(control_style);
 }
 
 void App::gather_tracked()
