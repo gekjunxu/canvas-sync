@@ -3,7 +3,7 @@
   <Name>Canvas Sync</Name>
   <Version>0.0.0</Version>
   <Title>Canvas Sync Installer</Title>
-  <Publisher>Nguyen Vu Khang</Publisher>
+  <Publisher>Jun Xu</Publisher>
   <StartMenuDir>Canvas Sync</StartMenuDir>
   <TargetDir>@ApplicationsDir@/Canvas Sync</TargetDir>
 </Installer>
