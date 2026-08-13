@@ -1,6 +1,7 @@
 #include "app.h"
 #include <csui/modal.h>
 #include <csync/csync.h>
+#include <QSignalBlocker>
 #include <QStyle>
 
 const QString help_access_token =
@@ -49,7 +50,10 @@ void App::setup_ui()
           });
   apply_theme(saved_theme.isEmpty() ? "system" : saved_theme);
 
-  // Show the stored token so an expired token can be replaced directly.
+  // Show the stored token so an expired token can be replaced directly. The
+  // initial value is authenticated explicitly by start(), so do not trigger
+  // a second authentication request through textChanged here.
+  const QSignalBlocker block_token_signal(ui->access_token_input);
   ui->access_token_input->setText(settings.get("access-token"));
 }
 
