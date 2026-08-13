@@ -172,14 +172,16 @@ jobs:
           $releaseDate = Get-Date -Format 'yyyy-MM-dd'
 
           $configPath = Join-Path $env:GITHUB_WORKSPACE 'deploy/windows/config/config.xml'
-          [xml]$config = Get-Content -Raw $configPath
-          $config.Installer.Version = $version
+          $config = [System.Xml.XmlDocument]::new()
+          $config.Load($configPath)
+          $config.SelectSingleNode('/Installer/Version').InnerText = $version
           $config.Save($configPath)
 
           $packagePath = Join-Path $env:GITHUB_WORKSPACE 'deploy/windows/packages/com.nguyenvukhang.canvassync/meta/package.xml'
-          [xml]$package = Get-Content -Raw $packagePath
-          $package.Package.Version = $version
-          $package.Package.ReleaseDate = $releaseDate
+          $package = [System.Xml.XmlDocument]::new()
+          $package.Load($packagePath)
+          $package.SelectSingleNode('/Package/Version').InnerText = $version
+          $package.SelectSingleNode('/Package/ReleaseDate').InnerText = $releaseDate
           $package.Save($packagePath)
 
       - name: Build
