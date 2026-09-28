@@ -331,7 +331,7 @@ void App::show_updates()
       prev_course = f.course_id;
     }
     if (!f.files.empty()) {
-      push("<h3 style=\"color: #525252\">");
+      push("<h3>");
       push(folder_name(f.id).c_str());
       push("</h3>");
       for (auto f : f.files) {
