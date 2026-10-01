@@ -6,4 +6,8 @@
   <Publisher>Jun Xu</Publisher>
   <StartMenuDir>Canvas Sync</StartMenuDir>
   <TargetDir>@ApplicationsDir@/Canvas Sync</TargetDir>
+  <RemoveTargetDir>false</RemoveTargetDir>
+  <ControlScript>controlscript.qs</ControlScript>
+  <RunProgram>@TargetDir@/Canvas Sync.exe</RunProgram>
+  <RunProgramDescription>Launch Canvas Sync</RunProgramDescription>
 </Installer>

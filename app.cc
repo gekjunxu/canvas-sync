@@ -331,7 +331,7 @@ void App::show_updates()
       prev_course = f.course_id;
     }
     if (!f.files.empty()) {
-      push("<h3 style=\"color: #525252\">");
+      push("<h3>");
       push(folder_name(f.id).c_str());
       push("</h3>");
       for (auto f : f.files) {
@@ -411,11 +411,11 @@ void App::apply_theme(const QString &theme)
   const QString control_style =
       "QPushButton, QComboBox { color: " + foreground +
       "; background-color: " + background +
-      "; } QPushButton:disabled { color: " + disabled + "; }";
-  ui->change_token_button->setStyleSheet(control_style);
-  ui->fetch_button->setStyleSheet(control_style);
-  ui->pull_button->setStyleSheet(control_style);
-  ui->theme_selector->setStyleSheet(control_style);
+      "; } QPushButton:disabled { color: " + disabled +
+      "; } QMessageBox QPushButton { color: " + foreground +
+      "; background-color: " + background +
+      "; } QMessageBox QPushButton:disabled { color: " + disabled + "; }";
+  qApp->setStyleSheet(control_style);
 }
 
 void App::gather_tracked()

@@ -12,6 +12,7 @@
 #include "convert.h"
 #include "types.h"
 
+#include <functional>
 #include <mutex>
 
 class ICanvas : public QObject
@@ -59,7 +60,16 @@ class Canvas : public ICanvas
 {
   Q_OBJECT
 
+  using JsonCallback =
+      std::function<void(const QJsonDocument &, const QString &)>;
+
   void terminate(QNetworkReply *r);
+
+  void request_json(const QString &url, int retry_count, JsonCallback done);
+  void fetch_json_pages(const QString &url, QJsonArray pages,
+                        JsonCallback done);
+  void download_file(const File &, const Folder &, int retry_count);
+  void finish_download();
 
   QNetworkReply *get_full(const QString &url);
   QNetworkReply *get(const QString &url);
